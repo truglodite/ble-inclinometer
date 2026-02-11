@@ -16,6 +16,7 @@
 1@ Seeed Studio Xiao NRF52840 Sense board:
 
 https://www.amazon.com/Seeed-Studio-XIAO-nRF52840-Pre-Soldered/dp/B09T94SZ8K/
+
 1@ 1s lithium battery (pretty much any 1s will work):
 
 https://www.amazon.com/flite-300mAh-3-7V-LiPo-Battery/dp/B01FTFZ1ZE/
