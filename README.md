@@ -18,6 +18,7 @@
 * Zero both axis by sending a "True" boolean to the tare service (long uuid)
 * "chargeCurrent" compile option to select between 50mA and 100mA battery charging current (50mA default)
 * "updateDelay" compile option to adjust refresh rate (1sec default)
+* Use the mbed board: "Seeed NRF-52 mbed enabled boards\Xiao nRF52840 Sense (No Update)"
 
 ### Possible additions:
 * Button for hardware zeroing
