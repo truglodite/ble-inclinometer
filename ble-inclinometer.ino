@@ -18,7 +18,7 @@
 #include "Wire.h"
 
 #define updateDelay 1000  // msec between data updates
-#define chargeCurrent HIGH // Built in battery charger: HIGH = 50mA, LOW = 100mA
+#define chargeCurrent LOW // Built in battery charger: HIGH = 50mA, LOW = 100mA
 
 LSM6DS3 myIMU(I2C_MODE, 0x6A);    //I2C device address 0x6A
 // Bluetooth® Low Energy Battery Service
@@ -93,7 +93,7 @@ void setup()
 
 void loop()
 {
-  digitalWrite(P0_13, chargeCurrent);
+  digitalWrite(13, chargeCurrent);
 
   // wait for a Bluetooth® Low Energy central
   BLEDevice central = BLE.central();
@@ -138,16 +138,16 @@ void updateBatteryLevel()
   /* Read the current voltage level on the A0 analog input pin.
      This is used here to simulate the charge level of a battery.
   */
-  int battery = analogRead(A0);
+  int battery = analogRead(14);
   int batteryLevel = map(battery, 0, 1023, 0, 100);
 
-if (batteryLevel != oldBatteryLevel)    // if the battery level has changed
-  { 
-    Serial.print("Battery Level % is now: "); // print it
-    Serial.println(batteryLevel);
-    batteryLevelChar.writeValue(batteryLevel);  // and update the battery level characteristic
-    oldBatteryLevel = batteryLevel;           // save the level for next comparison
-  } 
+  if (batteryLevel != oldBatteryLevel)    // if the battery level has changed
+    { 
+      Serial.print("Battery Level % is now: "); // print it
+      Serial.println(batteryLevel);
+      batteryLevelChar.writeValue(batteryLevel);  // and update the battery level characteristic
+      oldBatteryLevel = batteryLevel;           // save the level for next comparison
+    } 
 }
 
 void updateAngles()
