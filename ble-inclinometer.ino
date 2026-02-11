@@ -22,6 +22,8 @@
 #include <pinDefinitions.h>
 
 #define updateDelay 1000  // msec between data updates
+#define longFlash 2000   // msec to flash when tare is received
+#define shortFlash 50   // msec to flash when data is sent
 #define chargeCurrent LOW // Built in battery charger: HIGH = 50mA, LOW = 100mA
 #define batteryMaxV 4200 // voltage*1000 at 100% charge
 #define batteryMinV 3200 // voltage*1000 at 0% charge
@@ -48,7 +50,10 @@ int roll = 0.0;  // last battery level reading from analog input
 int pitch = 0.0;  // last battery level reading from analog input
 int tareRoll = 0.0;
 int tarePitch = 0.0;
-long previousMillis = 0;  // last time the battery level was checked, in ms
+long previousData = 0;  // msec since data was sent
+long previousFlash = 0;  // msec timer for data led flash
+bool dataFlag = 0;  // flag for data led flash
+bool tareFlag = 0;  // flag for tare led flash
 
 void setup()
 {
@@ -117,7 +122,7 @@ void loop()
     // print the central's BT address:
     Serial.println(central.address());
     
-    digitalWrite(LED_RED, HIGH); // turn off the red LED while connected
+    digitalWrite(LED_RED, HIGH); // turn off the red LED once connected
     digitalWrite(LED_BLUE, LOW);  // Turn on the blue led while connected
 
     // check the battery level every 200ms
@@ -125,17 +130,35 @@ void loop()
     while (central.connected())  {
       long currentMillis = millis();
       // enough time has passed, update the battery and angles:
-      if (currentMillis - previousMillis >= updateDelay)  {
-        previousMillis = currentMillis;
+      if (currentMillis - previousData >= updateDelay)  {
+        previousData = currentMillis;
         updateBatteryLevel();
         updateAngles();
+        digitalWrite(LED_RED, LOW); // turn on data led flash
+        dataFlag = 1;
+      }
+      // data led is on, and time to turn it off
+      if (dataFlag && currentMillis - previousData >= shortFlash)  {
+        if(!tareFlag) { // turn led off only if not taring
+          digitalWrite(LED_RED, HIGH);
+        }
+        dataFlag = 0;
       }
       if (tareChar.written()) {
-        if (tareChar.value()) {   
+        if (tareChar.value()) {    // received a HIGH value
+          previousFlash = currentMillis;
+          digitalWrite(LED_RED, LOW); // turn on tare led flash
+          tareFlag = 1;
           Serial.println("Tare Axis");
-          tareAxis(); // changed from HIGH to LOW       
+          tareAxis();    
         }
       }
+      // tare led is on, and time to turn it off
+      if (tareFlag && currentMillis - previousFlash >= longFlash)  {
+        digitalWrite(LED_RED, HIGH);
+        tareFlag = 0;
+      }
+
     }
     Serial.print("Disconnected from central: ");
     Serial.println(central.address());
