@@ -46,12 +46,12 @@ BLEByteCharacteristic tareChar("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead |
 // remote clients will be able to get notifications if this characteristic changes
 
 double oldBatteryV = 0.0;  // last battery level reading from analog input
-int roll = 0.0;  // roll to be sent
-int pitch = 0.0;  // pitch to be sent
-int rollRaw = 0.0;  // raw calculated roll
-int pitchRaw = 0.0;  // raw calculated pitch
-int tareRoll = 0.0;  // raw roll value when tared
-int tarePitch = 0.0;  // raw pitch value when tared
+int roll = 0;  // roll to be sent
+int pitch = 0;  // pitch to be sent
+float rollRaw = 0.0;  // raw calculated roll
+float pitchRaw = 0.0;  // raw calculated pitch
+float tareRoll = 0.0;  // raw roll value when tared
+float tarePitch = 0.0;  // raw pitch value when tared
 long previousData = 0;  // msec since data was sent
 long previousFlash = 0;  // msec timer for data led flash
 bool dataFlag = 0;  // flag for data led flash
