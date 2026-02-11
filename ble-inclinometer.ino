@@ -16,10 +16,19 @@
 #include "ArduinoBLE.h"
 #include "LSM6DS3.h"
 #include "Wire.h"
+#include <nrf52840.h>
+#include <nrfx_saadc.h>
+#include <AnalogIn.h>
+#include <pinDefinitions.h>
 
 #define updateDelay 1000  // msec between data updates
 #define chargeCurrent LOW // Built in battery charger: HIGH = 50mA, LOW = 100mA
+#define batteryMaxV 4200 // voltage*1000 at 100% charge
+#define batteryMinV 3200 // voltage*1000 at 0% charge
 
+#define chargePin P0_13
+#define batteryReadPin P0_14
+#define batteryAnalogPin P0_31
 LSM6DS3 myIMU(I2C_MODE, 0x6A);    //I2C device address 0x6A
 // Bluetooth® Low Energy Battery Service
 BLEService batteryService("180F");
@@ -34,11 +43,11 @@ BLEUnsignedCharCharacteristic pitchchar("2C09", BLERead | BLENotify); // standar
 BLEByteCharacteristic tareChar("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead | BLEWrite);
 // remote clients will be able to get notifications if this characteristic changes
 
-int oldBatteryLevel = 0;  // last battery level reading from analog input
-int roll = 0;  // last battery level reading from analog input
-int pitch = 0;  // last battery level reading from analog input
-int tareRoll = 0;
-int tarePitch = 0;
+double oldBatteryV = 0.0;  // last battery level reading from analog input
+int roll = 0.0;  // last battery level reading from analog input
+int pitch = 0.0;  // last battery level reading from analog input
+int tareRoll = 0.0;
+int tarePitch = 0.0;
 long previousMillis = 0;  // last time the battery level was checked, in ms
 
 void setup()
@@ -46,7 +55,8 @@ void setup()
   Serial.begin(9600);    // initialize serial communication
 
   pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
-  pinMode (P0_13, OUTPUT);  // init charge current setting pin
+  pinMode (chargePin, OUTPUT);  // init charge current setting pin
+  pinMode (batteryReadPin, OUTPUT);  // init charge current setting pin
 
   // begin initialization
   if (!BLE.begin()) 
@@ -68,7 +78,7 @@ void setup()
   BLE.setAdvertisedService(batteryService); // add the service UUID
   batteryService.addCharacteristic(batteryLevelChar); // add the battery level characteristic
   BLE.addService(batteryService); // Add the battery service
-  batteryLevelChar.writeValue(oldBatteryLevel); // set initial value for this characteristic
+  batteryLevelChar.writeValue(oldBatteryV); // set initial value for this characteristic
 // Configure roll Monitor Service
   BLE.setAdvertisedService(rollservice); // add the service UUID
   rollservice.addCharacteristic(rollchar); // add the battery level characteristic
@@ -93,7 +103,8 @@ void setup()
 
 void loop()
 {
-  digitalWrite(13, chargeCurrent);
+  digitalWrite(chargePin, chargeCurrent);
+  digitalWrite(batteryReadPin, LOW);
 
   // wait for a Bluetooth® Low Energy central
   BLEDevice central = BLE.central();
@@ -105,7 +116,7 @@ void loop()
     // print the central's BT address:
     Serial.println(central.address());
     // turn on the LED to indicate the connection:
-    digitalWrite(LED_BUILTIN, HIGH);
+    digitalWrite(LED_BUILTIN, LOW);
 
     // check the battery level every 200ms
     // while the central is connected:
@@ -127,26 +138,25 @@ void loop()
       }
     }
     // when the central disconnects, turn off the LED:
-    digitalWrite(LED_BUILTIN, LOW);
+    digitalWrite(LED_BUILTIN, HIGH);
     Serial.print("Disconnected from central: ");
     Serial.println(central.address());
   }
 }
 
+
 void updateBatteryLevel()
 {
-  /* Read the current voltage level on the A0 analog input pin.
-     This is used here to simulate the charge level of a battery.
-  */
-  int battery = analogRead(14);
-  int batteryLevel = map(battery, 0, 1023, 0, 100);
-
-  if (batteryLevel != oldBatteryLevel)    // if the battery level has changed
+  int battery = analogRead(batteryAnalogPin); // read battery adc
+  double batteryV = (battery * 3.3) / 1024 * 1510.0 / 510.0; // calc actual battery volts w/ 3v3 reg and 10bit adc
+  battery = batteryV * 1000; // use 4 digit precision for int mapping to %
+  battery = map(battery, batteryMinV, batteryMaxV, 0, 100); // map volts to %
+  if (batteryV != oldBatteryV)    // if the battery level has changed
     { 
-      Serial.print("Battery Level % is now: "); // print it
-      Serial.println(batteryLevel);
-      batteryLevelChar.writeValue(batteryLevel);  // and update the battery level characteristic
-      oldBatteryLevel = batteryLevel;           // save the level for next comparison
+      Serial.print("Battery Volts: "); // print actual battery volts
+      Serial.println(batteryV);
+      batteryLevelChar.writeValue(battery);  // send the battery %
+      oldBatteryV = batteryV;           // save the volts for next comparison
     } 
 }
 
@@ -158,12 +168,12 @@ void updateAngles()
   float accZ = myIMU.readFloatAccelZ();
   roll = atan2(accY, accZ) * 57.2958 - tareRoll;
   pitch = atan2(-accX, sqrt(accY * accY + accZ * accZ)) * 57.2958 - tarePitch;
-  Serial.print("Roll: "); // print it
+  Serial.print("Roll: "); // print roll angle
     Serial.println(roll);
-  rollchar.writeValue(roll);  // and update the battery level characteristic
-  Serial.print("Pitch: "); // print it
+  rollchar.writeValue(roll);  // send the roll value
+  Serial.print("Pitch: "); // print pitch angle
     Serial.println(pitch);
-  pitchchar.writeValue(pitch);  // and update the battery level characteristic
+  pitchchar.writeValue(pitch);  // send the pitch value
 }
 
 void tareAxis()
