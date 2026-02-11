@@ -12,6 +12,14 @@
 * Use the app to zero both axis
 * Reads battery % for use with a small lithium battery attached to the B+/B- pads (the Xiao has a built in lithium charger)
 
+## Hardware:
+1@ Seeed Studio Xiao NRF52840 Sense board:
+
+https://www.amazon.com/Seeed-Studio-XIAO-nRF52840-Pre-Soldered/dp/B09T94SZ8K/
+1@ 1s lithium battery (pretty much any 1s will work):
+
+https://www.amazon.com/flite-300mAh-3-7V-LiPo-Battery/dp/B01FTFZ1ZE/
+
 ## Install:
 #### Flash the code using Arduino IDE:
 If you don't have the Arduino IDE and Seeed libraries installed on your PC and have a grasp on flashing an Arduino, you should start by reading the software section of this page:
