@@ -1,11 +1,11 @@
 # ble-inclinometer
 
-### Simple code for measuring pitch/throw angles on RC helis/aircraft, using the tiny Xiao NRF52840 Sense board and a free phone app.
+### Simple code for measuring pitch/throw angles on RC helis/aircraft, using the tiny Xiao NRF52840 Sense board and a free phone app (also for PC).
 
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/IMG_2628_1.jpg" width="600">
 
 ## Features:
-* Works with Bluetooth LE using the "NRF Connect Mobile" app on iOS and Andriod
+* Works with Bluetooth LE using the "NRF Connect Mobile" app on iOS and Andriod, or "NRF Connect" for PC
 * Sends updated roll and pitch angles every second
 * Works on surfaces at any angle (ailerons, vee tail surfaces, etc)
 * Small and lightweight form factor vs commercial inclinometers; stays accurate on delicate/flexible surfaces
@@ -36,7 +36,11 @@ Once the board is flashed, wire a 1s lithium battery to the BAT+/- pads on the b
 Since the board will be clipped to control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires.
 
 ## Use:
-Install the NRF Connect Mobile app on your phone. When you power up your inclinometer, it will show up as "Angle Monitor" in the app. Connect to it, and the characteristics (sensors and controls) will show up on a list.
+Install the NRF Connect app on your phone or PC.
+
+https://www.nordicsemi.com/Products/Development-tools/nRF-Connect-for-Desktop
+
+When you power up your inclinometer, it will show up as "Angle Monitor" in the app. Connect to it, and the characteristics (sensors and controls) will show up on a list.
 #### Sensor List
 UUID | Name | Units
 --- | -------- | ---
