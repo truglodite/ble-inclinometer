@@ -15,14 +15,18 @@
 ## Install:
 #### Flash the code using Arduino IDE:
 If you don't have the Arduino IDE and Seeed libraries installed on your PC and have a grasp on flashing an Arduino, you should start by reading the software section of this page:
+
   https://wiki.seeedstudio.com/XIAO_BLE/
-Note this project will use the "Seeed nRF52 mbed-enabled Boards" since it needs the IMU.
+  
+Note this project will use the "Seeed nRF52 mbed-enabled Boards" since it needs the IMU. You will also have to install the Seeed gyro lib as shown on this page:
 
-You will also have to install the Seeed gyro lib as shown on this page:
   https://wiki.seeedstudio.com/XIAO-BLE-Sense-IMU-Usage/
-## Use:
-Once the board is flashed, wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend adding wires and a connector since this board does not charge very fast (100mA) and will drain the battery over time if left connected. I simply soldered some 30awg wire to a BT2.0 connector, and use a tinywhoop pack for power. Since the board will be clipped to control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires.
+  
+Once the board is flashed, wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend adding wires and a connector since this board does not charge very fast (100mA) and will drain the battery over time if left connected. I soldered some 30awg wire to a BT2.0 connector, and use a tinywhoop pack for power. 
 
+Since the board will be clipped to control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires.
+
+## Use:
 Install the NRF Connect Mobile app on your phone. When you power up your inclinometer, it will show up as "Angle Monitor" in the app. Connect to it, and the characteristics (sensors and controls) will show up on a list.
 #### Sensor List
 UUID | Name | Units
