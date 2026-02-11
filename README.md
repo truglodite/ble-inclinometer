@@ -34,7 +34,7 @@ UUID | Name | Units
 2A19 | Battery Level | % (3.2V-4.2V)
 2C08 | Roll axis | degrees
 2C09 | Pitch axis | degrees
-19B10001-... | Zero both axis | send "TRUE"
+19B10001-... | Tare both axis | send "TRUE"
 
 Click the "down-bar" arrows near the sensors to show updated values. Since BLE transmits in hexadecimal for efficiency, you have to click the "quotes" and select "signed int". Now the angles should be displayed correctly. Now clip the board on to the surface you need to measure, taking care to align an edge of the board with the hingeline. Move the surface to verify which axis is aligned (roll goes into the USB port, pitch goes across the USB). Zero both axis by clicking the "Up Arrow" on the long tare UUID, and send a boolean "True" (or an UnsignedInt "1"). Now setup the surface endpoints, rates, etc, move to the next surface and rezero as needed.
 
