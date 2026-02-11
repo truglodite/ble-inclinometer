@@ -11,6 +11,7 @@
 * Small and lightweight form factor vs commercial inclinometers; stays accurate on delicate/flexible surfaces
 * Use the app to zero both axis
 * Reads battery % for use with a small lithium battery attached to the B+/B- pads (the Xiao has a built in lithium charger)
+* LED status indicators (red = disconnected, blue = connected, red short flash = data being sent, red long flash = tare received)
 
 ## Hardware:
 1@ Seeed Studio Xiao NRF52840 Sense board:
