@@ -46,10 +46,12 @@ BLEByteCharacteristic tareChar("19B10001-E8F2-537E-4F6C-D104768A1214", BLERead |
 // remote clients will be able to get notifications if this characteristic changes
 
 double oldBatteryV = 0.0;  // last battery level reading from analog input
-int roll = 0.0;  // last battery level reading from analog input
-int pitch = 0.0;  // last battery level reading from analog input
-int tareRoll = 0.0;
-int tarePitch = 0.0;
+int roll = 0.0;  // roll to be sent
+int pitch = 0.0;  // pitch to be sent
+int rollRaw = 0.0;  // raw calculated roll
+int pitchRaw = 0.0;  // raw calculated pitch
+int tareRoll = 0.0;  // raw roll value when tared
+int tarePitch = 0.0;  // raw pitch value when tared
 long previousData = 0;  // msec since data was sent
 long previousFlash = 0;  // msec timer for data led flash
 bool dataFlag = 0;  // flag for data led flash
@@ -187,8 +189,10 @@ void updateAngles()
   float accX = myIMU.readFloatAccelX();
   float accY = myIMU.readFloatAccelY();
   float accZ = myIMU.readFloatAccelZ();
-  roll = atan2(accY, accZ) * 57.2958 - tareRoll;
-  pitch = atan2(-accX, sqrt(accY * accY + accZ * accZ)) * 57.2958 - tarePitch;
+  rollRaw = atan2(accY, accZ) * 57.2958;
+  pitchRaw = atan2(-accX, sqrt(accY * accY + accZ * accZ)) * 57.2958;
+  roll = rollRaw - tareRoll;
+  pitch = pitchRaw - tarePitch;
   Serial.print("Roll: "); // print roll angle
     Serial.println(roll);
   rollchar.writeValue(roll);  // send the roll value
@@ -199,6 +203,6 @@ void updateAngles()
 
 void tareAxis()
 {
-  tareRoll = roll;
-  tarePitch = pitch;
+  tareRoll = rollRaw;
+  tarePitch = pitchRaw;
 }
