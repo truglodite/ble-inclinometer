@@ -54,7 +54,7 @@ void setup()
 {
   Serial.begin(9600);    // initialize serial communication
 
-  pinMode(LED_BUILTIN, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
+  pinMode(LED_RED, OUTPUT); // initialize the built-in LED pin to indicate when a central is connected
   pinMode (chargePin, OUTPUT);  // init charge current setting pin
   pinMode (batteryReadPin, OUTPUT);  // init charge current setting pin
 
@@ -103,42 +103,40 @@ void setup()
 
 void loop()
 {
-  digitalWrite(chargePin, chargeCurrent);
-  digitalWrite(batteryReadPin, LOW);
-
+  digitalWrite(chargePin, chargeCurrent); // configure usb charger
+  digitalWrite(batteryReadPin, LOW);  // configure battery measurement
+  
+  digitalWrite(LED_RED, LOW);  // Turn on red led while not connected
+  digitalWrite(LED_BLUE, HIGH);  // Turn off blue led while not connected
   // wait for a Bluetooth® Low Energy central
   BLEDevice central = BLE.central();
 
   // if a central is connected to the peripheral:
-  if (central)
-  {
+  if (central)  {
     Serial.print("Connected to central: ");
     // print the central's BT address:
     Serial.println(central.address());
-    // turn on the LED to indicate the connection:
-    digitalWrite(LED_BUILTIN, LOW);
+    
+    digitalWrite(LED_RED, HIGH); // turn off the red LED while connected
+    digitalWrite(LED_BLUE, LOW);  // Turn on the blue led while connected
 
     // check the battery level every 200ms
     // while the central is connected:
-    while (central.connected())
-    {
+    while (central.connected())  {
       long currentMillis = millis();
-      // if 200ms have passed, check the battery level:
-      if (currentMillis - previousMillis >= updateDelay)
-      {
+      // enough time has passed, update the battery and angles:
+      if (currentMillis - previousMillis >= updateDelay)  {
         previousMillis = currentMillis;
         updateBatteryLevel();
         updateAngles();
       }
       if (tareChar.written()) {
-          if (tareChar.value()) {   
-            Serial.println("Tare Axis");
-            tareAxis(); // changed from HIGH to LOW       
-          }
+        if (tareChar.value()) {   
+          Serial.println("Tare Axis");
+          tareAxis(); // changed from HIGH to LOW       
+        }
       }
     }
-    // when the central disconnects, turn off the LED:
-    digitalWrite(LED_BUILTIN, HIGH);
     Serial.print("Disconnected from central: ");
     Serial.println(central.address());
   }
