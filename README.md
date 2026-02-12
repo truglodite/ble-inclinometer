@@ -4,6 +4,8 @@
 
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/IMG_2628_1.jpg" width="600">
 
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/IMG_2629.PNG" width="600">
+
 ## Features:
 * Works with Bluetooth LE using the "NRF Connect Mobile" app on iOS and Andriod
 * Sends updated roll and pitch angles every second, with sub-degree precision
