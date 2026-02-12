@@ -22,7 +22,7 @@
 #include <pinDefinitions.h>
 #include <avr/dtostrf.h>
 
-#define updateDelay 1000  // msec between data updates
+#define sampleCount 100 // # of samples between readings
 #define longFlash 2000   // msec to flash when tare is received
 #define shortFlash 50   // msec to flash when data is sent
 #define chargeCurrent LOW // Built in battery charger: HIGH = 50mA, LOW = 100mA
@@ -60,20 +60,22 @@ BLEDescriptor rollDegreesDescriptor("2901", "Roll Degrees");
 BLEDescriptor batteryVoltsDescriptor("2901", "Batt Volts");
 BLEDescriptor tareCharDescriptor("2901", "Tare");
 
-float oldBatteryV = 0.0;  // last battery level reading from analog input
+float battery = 0.0;  // battery voltage
 char batteryBuffer[20];
-float roll = 0;  // roll to be sent
+float roll = 0;  // roll angle
 char rollBuffer[20];
-float pitch = 0;  // pitch to be sent
+float pitch = 0;  // pitch angle
 char pitchBuffer[20];
 float rollRaw = 0.0;  // raw calculated roll
 float pitchRaw = 0.0;  // raw calculated pitch
 float tareRoll = 0.0;  // raw roll value when tared
 float tarePitch = 0.0;  // raw pitch value when tared
 long previousData = 0;  // msec since data was sent
-long previousFlash = 0;  // msec timer for data led flash
-bool dataFlag = 0;  // flag for data led flash
-bool tareFlag = 0;  // flag for tare led flash
+long previousTare = 0;  // msec timer for data led flash
+bool dataLedFlag = 0;  // flag for data led flash
+bool tareFlag = 0;  // flag for tare routine
+bool tareLedFlag = 0; // flag for tare led timer
+u_int8_t samples = 0;  // sample count storage
 
 void setup()
 {
@@ -118,16 +120,23 @@ void setup()
   BLE.addService( angleMonitorService );
 
   // Write initial values
-  dtostrf(oldBatteryV, 4, 2, batteryBuffer);
+  dtostrf(battery, 4, 2, batteryBuffer);
   batteryVolts.writeValue(batteryBuffer);
-  dtostrf(roll, 4, 2, rollBuffer);
+  dtostrf(roll, 5, 2, rollBuffer);
   rollDegrees.writeValue(rollBuffer);
-  dtostrf(pitch, 4, 2, pitchBuffer);
+  dtostrf(pitch, 5, 2, pitchBuffer);
   pitchDegrees.writeValue(pitchBuffer);
   tareChar.writeValue(0);
 
   // start advertising
   BLE.advertise();
+
+  // Configure IMU
+  myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
+  myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelRange = 2;      //Max G force readable.  Can be: 2, 4, 8, 16
+  myIMU.settings.accelSampleRate = 104;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
 
   Serial.println("Bluetooth® device active, waiting for connections...");
 }
@@ -155,34 +164,46 @@ void loop()
     // while the central is connected:
     while (central.connected())  {
       long currentMillis = millis();
-      // enough time has passed, update the battery and angles:
-      if (currentMillis - previousData >= updateDelay)  {
+
+      // count more samples
+      if (samples < sampleCount)  {
+        readData();
+        samples++;
+      }
+      // enough samples, send data
+      else  {
         previousData = currentMillis;
-        updateBatteryLevel();
-        updateAngles();
+        sendData();
         digitalWrite(LED_RED, LOW); // turn on data led flash
-        dataFlag = 1;
+        dataLedFlag = 1;
       }
       // data led is on, and time to turn it off
-      if (dataFlag && currentMillis - previousData >= shortFlash)  {
-        if(!tareFlag) { // turn led off only if not taring
+      if (dataLedFlag && currentMillis - previousData >= shortFlash)  {
+        if(!tareLedFlag) { // turn led off only if not taring
           digitalWrite(LED_RED, HIGH);
         }
-        dataFlag = 0;
+        dataLedFlag = 0;
       }
+
+      // Tare recieved, turn on LED and set tare flag
       if (tareChar.written()) {
         if (tareChar.value()) {    // received a HIGH value
-          previousFlash = currentMillis;
+          previousTare = currentMillis; //start led timer
           digitalWrite(LED_RED, LOW); // turn on tare led flash
           tareFlag = 1;
+          tareLedFlag = 1;
           Serial.println("Tare Axis");
-          tareAxis();    
         }
       }
-      // tare led is on, and time to turn it off
-      if (tareFlag && currentMillis - previousFlash >= longFlash)  {
-        digitalWrite(LED_RED, HIGH);
+      // We have a tare flag, and enough samples to tare
+      if (tareFlag && samples >= sampleCount) {
+        tareAxis();
         tareFlag = 0;
+      }
+      // tare led is on, and time to turn it off
+      if (tareLedFlag && currentMillis - previousTare >= longFlash)  {
+        digitalWrite(LED_RED, HIGH);
+        tareLedFlag = 0;
       }
 
     }
@@ -192,43 +213,45 @@ void loop()
 }
 
 
-void updateBatteryLevel()
-{
-  int battery = analogRead(batteryAnalogPin); // read battery adc
-  float batteryV = (float(battery) * 3.3) / 1024 * 1510.0 / 510.0; // calc actual battery volts w/ 3v3 reg and 10bit adc
-  if (batteryV != oldBatteryV)    // if the battery level has changed
-    { 
-      dtostrf(oldBatteryV, 4, 2, batteryBuffer);
-      batteryVolts.writeValue(batteryBuffer);
-      Serial.print("Battery Volts: "); // print actual battery volts
-      Serial.println(batteryBuffer);
-      batteryVolts.writeValue(batteryBuffer);  // send the battery %
-      oldBatteryV = batteryV;           // save the volts for next comparison
-    } 
-}
+void readData()  {
+  int batteryADC = analogRead(batteryAnalogPin); // read battery adc
+  battery += (float(batteryADC) * 3.3) / 1024 * 1510.0 / 510.0; // calc actual battery volts w/ 3v3 reg and 10bit adc
 
-void updateAngles()
-{
   //Read angle between X and Z accelerometer axis
   float accX = myIMU.readFloatAccelX();
   float accY = myIMU.readFloatAccelY();
   float accZ = myIMU.readFloatAccelZ();
-  rollRaw = atan2(accY, accZ) * 57.2958;
-  pitchRaw = atan2(-accX, sqrt(accY * accY + accZ * accZ)) * 57.2958;
-  roll = (rollRaw - tareRoll);
-  pitch = (pitchRaw - tarePitch);
-  dtostrf(roll, 4, 2, rollBuffer);
-  dtostrf(pitch, 4, 2, pitchBuffer);
-  Serial.print("Roll: "); // print roll angle
-    Serial.println(rollBuffer);
-  rollDegrees.writeValue(rollBuffer);
-  Serial.print("Pitch: "); // print pitch angle
-    Serial.println(pitchBuffer);
-  pitchDegrees.writeValue(pitchBuffer);
+  rollRaw += atan2(accY, accZ) * 57.2958;
+  pitchRaw += atan2(-accX, sqrt(accY * accY + accZ * accZ)) * 57.2958;
 }
 
-void tareAxis()
-{
-  tareRoll = rollRaw;
-  tarePitch = pitchRaw;
+void sendData() {
+  // Average angles, stringify, print, and send
+  roll = ( rollRaw / samples ) - tareRoll;
+  pitch = ( pitchRaw / samples ) - tarePitch;
+  dtostrf(roll, 5, 2, rollBuffer);
+  dtostrf(pitch, 5, 2, pitchBuffer);
+  Serial.print("Roll: ");
+    Serial.println(rollBuffer);
+  rollDegrees.writeValue(rollBuffer);
+  Serial.print("Pitch: ");
+    Serial.println(pitchBuffer);
+  pitchDegrees.writeValue(pitchBuffer);
+
+  battery = battery / samples;
+  dtostrf(battery, 4, 2, batteryBuffer);
+  Serial.print("Battery Volts: "); // print actual battery volts
+  Serial.println(batteryBuffer);
+  batteryVolts.writeValue(batteryBuffer);  // send the battery volts
+
+  // rezero values
+  samples = 0;
+  rollRaw = 0;
+  pitchRaw = 0;
+  battery = 0;
+}
+
+void tareAxis() {
+  tareRoll = rollRaw / samples;
+  tarePitch = pitchRaw / samples;
 }
