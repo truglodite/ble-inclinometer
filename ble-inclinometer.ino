@@ -10,6 +10,8 @@
 // Configure the data as "UTF-8" ("quote" buttons).
 // To zero both axis, send a true boolean (or 1) to the tare service (1003) (up arrow on sensor w/ long uuid).
 // If using a battery for power via the battery pads, subscribe to the battery service (1004) to read battery volts.
+// Roll axis is into the usb, pitch is across the usb
+// LED indicates status: Red = BLE disconnected, Blue = BLE connected, Red flash = data sent via BLE, Red long flash = taring
 
 // Arduino requires the seed gyro lib (not the 'duino download): https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3
 
@@ -131,11 +133,11 @@ void setup()
   // start advertising
   BLE.advertise();
 
-  // Configure IMU
+  // Configure IMU for slow-precise angle measurement
   myIMU.settings.gyroEnabled = 0;  //Can be 0 or 1
   myIMU.settings.accelEnabled = 1;
   myIMU.settings.accelRange = 2;      //Max G force readable.  Can be: 2, 4, 8, 16
-  myIMU.settings.accelSampleRate = 104;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
+  myIMU.settings.accelSampleRate = 416;  //Hz.  Can be: 13, 26, 52, 104, 208, 416, 833, 1666, 3332, 6664, 13330
   myIMU.settings.accelBandWidth = 50;  //Hz.  Can be: 50, 100, 200, 400;
 
   Serial.println("Bluetooth® device active, waiting for connections...");
@@ -229,8 +231,8 @@ void sendData() {
   // Average angles, stringify, print, and send
   roll = ( rollRaw / samples ) - tareRoll;
   pitch = ( pitchRaw / samples ) - tarePitch;
-  dtostrf(roll, 5, 2, rollBuffer);
-  dtostrf(pitch, 5, 2, pitchBuffer);
+  dtostrf(roll, 5, 1, rollBuffer);
+  dtostrf(pitch, 5, 1, pitchBuffer);
   Serial.print("Roll: ");
     Serial.println(rollBuffer);
   rollDegrees.writeValue(rollBuffer);
