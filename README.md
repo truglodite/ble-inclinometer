@@ -46,7 +46,7 @@ UUID | Name | Units
 1003 | Tare both axis | send "TRUE"
 1004 | Battery Level | % (3.2V-4.2V)
 
-Click the "down-bar" arrows near the sensors to show updated values. Since BLE transmits in hexadecimal for efficiency, you have to click the "quotes" and select "signed int". Now the angles should be displayed correctly. Now clip the board on to the surface you need to measure, taking care to align an edge of the board with the hingeline. Move the surface to verify which axis is aligned (roll goes into the USB port, pitch goes across the USB). Zero both axis by clicking the "Up Arrow" on the tare UUID, and send a boolean "True" (or an UnsignedInt "1"). Now setup the surface endpoints, rates, etc, move to the next surface and rezero as needed.
+Click the "down-bar" arrows near the sensors to show updated values. SClick the "quotes" and select "UTF-8". Now the angles and voltage should be displayed correctly. Clip the board on to the surface you need to measure, taking care to align an edge of the board with the hingeline. Move the surface to verify which axis is aligned (roll goes into the USB port, pitch goes across the USB). Zero both axis by clicking the "Up Arrow" on the tare UUID, and send a boolean "True" (or an UnsignedInt "1"). Now setup the surface endpoints, rates, etc, move to the next surface and rezero as needed.
 
 ## Notes:
 * The roll is axis is oriented "going in to the USB"
