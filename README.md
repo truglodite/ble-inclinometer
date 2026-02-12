@@ -6,7 +6,7 @@
 
 ## Features:
 * Works with Bluetooth LE using the "NRF Connect Mobile" app on iOS and Andriod
-* Sends updated roll and pitch angles every second
+* Sends updated roll and pitch angles every second, with sub-degree precision
 * Works on surfaces at any angle (ailerons, vee tail surfaces, etc)
 * Small and lightweight form factor vs commercial inclinometers; stays accurate on delicate/flexible surfaces
 * Use the app to zero both axis
