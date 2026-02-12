@@ -12,7 +12,7 @@
 * Works on surfaces at any angle (ailerons, vee tail surfaces, etc)
 * Small and lightweight form factor vs commercial inclinometers; stays accurate on delicate/flexible surfaces
 * Use the app to zero both axis
-* Reads battery % for use with a small lithium battery attached to the B+/B- pads (the Xiao has a built in lithium charger)
+* Reads battery volts, for use with a small lithium battery attached to the B+/B- pads (the Xiao has a built in lithium charger)
 * LED status indicators (red = disconnected, blue = connected, red short flash = data being sent, red long flash = tare received)
 
 ## Hardware:
@@ -46,7 +46,7 @@ UUID | Name | Units
 1001 | Roll axis | degrees
 1002 | Pitch axis | degrees
 1003 | Tare both axis | send "TRUE"
-1004 | Battery Level | % (3.2V-4.2V)
+1004 | Battery Voltage | V
 
 Click the "down-bar" arrows near the sensors to show updated values. SClick the "quotes" and select "UTF-8". Now the angles and voltage should be displayed correctly. Clip the board on to the surface you need to measure, taking care to align an edge of the board with the hingeline. Move the surface to verify which axis is aligned (roll goes into the USB port, pitch goes across the USB). Zero both axis by clicking the "Up Arrow" on the tare UUID, and send a boolean "True" (or an UnsignedInt "1"). Now setup the surface endpoints, rates, etc, move to the next surface and rezero as needed.
 
@@ -54,8 +54,8 @@ Click the "down-bar" arrows near the sensors to show updated values. SClick the 
 * The roll is axis is oriented "going in to the USB"
 * The pitch axis is oriented "across the USB"
 * "chargeCurrent" compile option to select between 50mA and 100mA battery charging current (50mA default)
-* "updateDelay" compile option to adjust refresh rate (1sec default)
-* Use the mbed board: "Seeed NRF-52 mbed enabled boards\Xiao nRF52840 Sense (No Update)"
+* "updateDelay" compile option to adjust refresh rate (1sec default, limited by the phone app)
+* Compile using the mbed board definition: "Seeed NRF-52 mbed enabled boards\Xiao nRF52840 Sense (No Update)"
 ## Possible additions:
 * Button for hardware zeroing
 * ...?
