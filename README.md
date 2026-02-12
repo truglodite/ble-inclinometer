@@ -14,6 +14,7 @@
 * Use the app to zero both axis
 * Reads battery volts, for use with a small lithium battery attached to the B+/B- pads (the Xiao has a built in lithium charger)
 * LED status indicators (red = disconnected, blue = connected, red short flash = data being sent, red long flash = tare received)
+* Printable clip STL files
 
 ## Hardware:
 1@ Seeed Studio Xiao NRF52840 Sense board:
@@ -36,7 +37,7 @@ Note this project will use the "Seeed nRF52 mbed-enabled Boards" since it needs 
   
 Once the board is flashed, wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend adding wires and a connector since this board does not charge very fast (100mA) and will drain the battery over time if left connected. I soldered some 30awg wire to a BT2.0 connector, and use a tinywhoop pack for power. 
 
-Since the board will be clipped to control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires.
+Since the board will be clipped with the bottom side facing control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires. The printable clips are gentle on planes, and plenty secure especially if 2242 tape is used.
 
 ## Use:
 Install the NRF Connect app on your phone. When you power up your inclinometer, it will show up as "Angle Monitor" in the app. Connect to it, and the characteristics (sensors and controls) will show up on a list.
@@ -56,6 +57,7 @@ Click the "down-bar" arrows near the sensors to show updated values. SClick the 
 * "chargeCurrent" compile option to select between 50mA and 100mA battery charging current (50mA default)
 * "updateDelay" compile option to adjust refresh rate (1sec default, limited by the phone app)
 * Compile using the mbed board definition: "Seeed NRF-52 mbed enabled boards\Xiao nRF52840 Sense (No Update)"
+* Uploaded stl files in 3 sizes: 0mm, 3mm, and 6mm. Print a set with TPU to suit many different surface thicknesses... or just use a clothes pin.
 ## Possible additions:
 * Button for hardware zeroing
 * ...?
