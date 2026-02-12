@@ -6,10 +6,10 @@
 
 // Usage:
 // Flash the board, power it on, and connect it to the app.
-// Subscribe to the roll (a68e) and pitch (d9bc) sensors ("down/line arrow" buttons).
+// Subscribe to the roll (1002) and pitch (1003) sensors ("down/line arrow" buttons).
 // Configure the data as "UTF-8" ("quote" buttons).
-// To zero both axis, send a true boolean (or 1) to the tare service (f7a7) (up arrow on sensor w/ long uuid).
-// If using a battery for power via the battery pads, subscribe to the battery service (5726) to read battery volts.
+// To zero both axis, send a true boolean (or 1) to the tare service (1004) (up arrow on sensor w/ long uuid).
+// If using a battery for power via the battery pads, subscribe to the battery service (1001) to read battery volts.
 
 // Arduino requires the seed gyro lib (not the 'duino download): https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3
 
@@ -36,20 +36,30 @@ LSM6DS3 myIMU(I2C_MODE, 0x6A);    //I2C device address 0x6A
 
 // Characteristic UUID's
 #define BLE_UUID_ANGLE_MONITOR_SERVICE "8acafa20-26e9-4d16-a792-cf7de147c01c"
-#define BLE_UUID_BATTERY_VOLTS  "5726c19a-8a75-5d7a-845d-aadf6734d7e7"
-#define BLE_UUID_ROLL_DEGREES  "a68e1ad6-8c88-56f4-b9d5-792af19cfb19"
-#define BLE_UUID_PITCH_DEGREES  "d9bc177b-1fbe-5724-867a-558e397f2401"
-#define BLE_UUID_TARE_SWITCH  "f7a73029-a679-5de1-8448-ba3d23450f75"
+#define BLE_UUID_BATTERY_VOLTS  "1001"
+#define BLE_UUID_ROLL_DEGREES  "1002"
+#define BLE_UUID_PITCH_DEGREES  "1003"
+#define BLE_UUID_TARE_SWITCH  "1004"
+//#define BLE_UUID_BATTERY_VOLTS  "5726c19a-8a75-5d7a-845d-aadf6734d7e7"
+//#define BLE_UUID_ROLL_DEGREES  "a68e1ad6-8c88-56f4-b9d5-792af19cfb19"
+//#define BLE_UUID_PITCH_DEGREES  "d9bc177b-1fbe-5724-867a-558e397f2401"
+//#define BLE_UUID_TARE_SWITCH  "f7a73029-a679-5de1-8448-ba3d23450f75"
 
 // Bluetooth® Low Energy Battery Service
 BLEService angleMonitorService(BLE_UUID_ANGLE_MONITOR_SERVICE);
 
-// Bluetooth® Low Energy Characteristics
+// Bluetooth® Low Energy Characteristics & Descriptors
 BLEStringCharacteristic batteryVolts(BLE_UUID_BATTERY_VOLTS, BLERead | BLENotify, 20);
 BLEStringCharacteristic rollDegrees(BLE_UUID_ROLL_DEGREES, BLERead | BLENotify, 20);
 BLEStringCharacteristic pitchDegrees(BLE_UUID_PITCH_DEGREES, BLERead | BLENotify, 20);
 BLEByteCharacteristic tareChar(BLE_UUID_TARE_SWITCH, BLERead | BLEWrite);
-
+/*
+// BLE Descriptors
+BLEDescriptor pitchDegreesDescriptor("2901", "Pitch Degrees");
+BLEDescriptor rollDegreesDescriptor("2901", "Roll Degrees");
+BLEDescriptor batteryVoltsDescriptor("2901", "Batt Volts");
+BLEDescriptor tareCharDescriptor("2901", "Tare");
+*/
 float oldBatteryV = 0.0;  // last battery level reading from analog input
 char batteryBuffer[20];
 float roll = 0;  // roll to be sent
@@ -91,7 +101,13 @@ void setup()
   BLE.setDeviceName( "Angle Monitor" );
   BLE.setLocalName( "Angle Monitor" );
   BLE.setAdvertisedService( angleMonitorService );
-
+/*
+  // Add Characteristic descriptors
+  batteryVolts.addDescriptor(batteryVoltsDescriptor);
+  rollDegrees.addDescriptor(rollDegreesDescriptor);
+  pitchDegrees.addDescriptor(pitchDegreesDescriptor);
+  tareChar.addDescriptor(tareCharDescriptor);
+*/
   // Add BLE characteristics
   angleMonitorService.addCharacteristic( batteryVolts );
   angleMonitorService.addCharacteristic( rollDegrees );
