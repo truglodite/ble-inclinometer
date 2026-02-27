@@ -2,9 +2,7 @@
 
 ### Simple code for measuring pitch/throw angles on RC helis/aircraft, using the tiny Xiao NRF52840 Sense board.
 
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
-
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2629.PNG" height="600">
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600"> <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2629.PNG" height="600">
 
 ## Features:
 * Works with Bluetooth LE using the "NRF Connect Mobile" app on iOS and Andriod
