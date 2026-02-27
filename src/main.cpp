@@ -21,7 +21,7 @@
 
 //  Wiring:
 //  Device Pin | Xiao Pin
-//  ------------------------
+//  ------------ | ------------
 //  battery +   | Bat+
 //  battery -   | Bat-
 //  OLED VCC    | 3v3

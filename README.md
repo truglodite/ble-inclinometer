@@ -27,7 +27,15 @@ https://www.amazon.com/Seeed-Studio-XIAO-nRF52840-Pre-Soldered/dp/B09T94SZ8K/
 
 https://www.amazon.com/flite-300mAh-3-7V-LiPo-Battery/dp/B01FTFZ1ZE/
 
+1@ SSD1306 i2c OLED display (optional):
+https://www.amazon.com/HiLetgo-Serial-128X64-Display-Color/dp/B06XRBTBTB/
+
+1@ Momentary N.O. tactile button (optional):
+https://www.amazon.com/DAOKI-100Pcs-6x6x5mm-Momentary-Tactile/dp/B07X8T9D2Q/
+
 ## Install:
+#### Flash the code using PlatformIO (recommended)
+This option might be easier, since the libraries are included in this repo. I won't go into details of how to use PlatformIO, but it is fairly simple. Download and install vscode, and install the platformIO extension in vscode. Download and unzip this repo to your Projects folder, and "Open Folder" in platformio home. Use the right arrow near the bottom to compile and flash.
 #### Flash the code using Arduino IDE:
 If you don't have the Arduino IDE and Seeed libraries installed on your PC and have a grasp on flashing an Arduino, you should start by reading the software section of this page:
 
@@ -36,11 +44,23 @@ If you don't have the Arduino IDE and Seeed libraries installed on your PC and h
 Note this project will use the "Seeed nRF52 mbed-enabled Boards" since it needs the IMU. You will also have to install the Seeed gyro lib as shown on this page:
 
   https://wiki.seeedstudio.com/XIAO-BLE-Sense-IMU-Usage/
-  
+## Wiring
 Once the board is flashed, wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend adding wires and a connector since this board does not charge very fast (100mA) and will drain the battery over time if left connected. I soldered some 30awg wire to a BT2.0 connector, and use a tinywhoop pack for power. 
 
 Since the board will be clipped with the bottom side facing control surfaces, it's a good idea to add some protection so the wires don't get damaged. I cut pieces of thick 3m 2242 tape to make a tunnel for the wires. This way the board lies in plane with the surface without pinching wires. The printable clips are gentle on planes, and plenty secure especially if 2242 tape is used.
 
+If you are using an OLED and button, wire them as shown in the table below:
+
+Device Pin | Xiao Pin
+------------ | ------------
+battery +   | Bat+
+battery -   | Bat-
+OLED VCC    | 3v3
+OLED GND    | GND
+OLED SDA    | 4
+OLED SCL    | 5
+button 1a   | 10
+button 1b   | gnd
 ## Use:
 Install the NRF Connect app on your phone. When you power up your inclinometer, it will show up as "Angle Monitor" in the app. Connect to it, and the characteristics (sensors and controls) will show up on a list.
 #### Sensor List
@@ -53,6 +73,7 @@ UUID | Name | Units
 
 Click the "down-bar" arrows near the sensors to show updated values. SClick the "quotes" and select "UTF-8". Now the angles and voltage should be displayed correctly. Clip the board on to the surface you need to measure, taking care to align an edge of the board with the hingeline. Move the surface to verify which axis is aligned (roll goes into the USB port, pitch goes across the USB). Zero both axis by clicking the "Up Arrow" on the tare UUID, and send a boolean "True" (or an UnsignedInt "1"). Now setup the surface endpoints, rates, etc, move to the next surface and rezero as needed.
 
+Alternatively if you have an OLED and button, simply click the button to tare... and obviously you can read angles and battery volts on the screen.
 ## Notes:
 * The roll is axis is oriented "going in to the USB"
 * The pitch axis is oriented "across the USB"
@@ -60,8 +81,9 @@ Click the "down-bar" arrows near the sensors to show updated values. SClick the 
 * "updateDelay" compile option to adjust refresh rate (1sec default, limited by the phone app)
 * Compile using the mbed board definition: "Seeed NRF-52 mbed enabled boards\Xiao nRF52840 Sense (No Update)"
 * Uploaded stl files in 3 sizes: 0mm, 3mm, and 6mm. Print a set with TPU to suit many different surface thicknesses... or just use a clothes pin.
+* There is a compile time option "oledFormatBig", which can be used for monochrome SSD1306 displays
+
 ## Possible additions:
-* Button for hardware zeroing
 * ...?
 
 It's nothing special. Feel free to use and/or modify the code however you wish. ;)
