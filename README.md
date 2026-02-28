@@ -2,10 +2,6 @@
 
 ### Measure pitch and throw angles on RC aircraft and helis, using the Xiao NRF52840 Sense.
 
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
-
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerCase.jpg" width="600">
-
 ## Features:
 * Extremely Small and lightweight sensor form factor vs commercial inclinometers; won't spoil measurements on delicate/flexible surfaces with weak servos
 * Very simple stand alone 1s battery only option works with Bluetooth LE using the "NRF Connect Mobile" app (iOS and Andriod)
@@ -16,6 +12,12 @@
 * Simplified PlatformIO flashing with open source libraries included
 * LED status indicators (Blue = BLE connected, Green flash = Data updated, Red flash = Taring)
 * 3D printable surface clip STL files included
+
+*Minimal assymbly for BLE use, with just a 1s lipo connected to the XIAO*
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
+
+*Full featured assymbly including OLED and tare button, using the included 3d printable files.*
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerCase.jpg" width="600">
 
 ## Hardware:
 1@ Seeed Studio Xiao NRF52840 Sense board:
