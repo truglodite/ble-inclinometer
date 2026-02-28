@@ -1,9 +1,9 @@
 #include <Arduino.h>
 
-// Truglodite 2/10/26
 // ble-inclinometer
-// The perfect tool for setting rc plane control throw, and other angle measurement needs.
-// This code is writed for the "Xiao NRF52840 Sense" board (use the "mbed" board definition).
+// written by: Truglodite 2/26/26
+// The perfect tool for setting rc aircraft control throw, and other angle measurement needs.
+// This code is written for the "Xiao NRF52840 Sense" board (use the "mbed" board definition).
 // Standalone use with just a battery and a phone app (NRF Connect Mobile, for iOS and Android).
 // Optional OLED display can be used for operation without a phone (SSD1306 i2c).
 // Optional tare button can be connected for operation without a phone.
@@ -12,11 +12,9 @@
 // Flash the board, power it on, and connect it to the app.
 // Subscribe to the roll (1001) and pitch (1002) sensors ("down/line arrow" buttons).
 // Configure the data as "UTF-8" ("quote" buttons).
-// Alternatively, read the optional OLED screen
-// To zero both axis, send a true boolean (or 1) to the tare service (1003) (up arrow on sensor w/ long uuid).
-// Alternatively, if a tare button is installed simply press it to zero both axis.
+// To zero both axis, send a true boolean (or 1) to the tare service (1003) (up arrow on sensor w/ long uuid), or push the tare button.
 // If using a battery for power via the battery pads, subscribe to the battery service (1004) to read battery volts.
-// Roll axis is into the usb, pitch is across the usb
+// Roll axis goes into the usb, pitch is across the usb.
 // LEDs indicate status: Blue = BLE connected, Green flash = Data updated, Red flash = Taring
 
 //  Wiring:
@@ -195,9 +193,9 @@ void sendOLED() {
     display.setTextSize(2);
     display.setTextColor(SSD1306_WHITE);
     display.setCursor(0, 0);
-    display.print("R:");
+    display.print("R: ");
     display.println(rollBuffer);
-    display.print("P:");
+    display.print("P: ");
     display.println(pitchBuffer);
     display.setCursor(0, 52);
     display.setTextSize(1);
