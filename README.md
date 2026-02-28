@@ -60,6 +60,8 @@ button 1b   | gnd
 
 The entire circuit uses very little current. So 30awg or even smaller wire should be adequate. Wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend using a battery connector, as the battery will drain over time if left connected while not being used. I soldered some 30awg wire to a BT2.0 connector, and use one of my old/tired 1s300 tinywhoop lipos for power. If you are using an OLED and/or a tare button, wire them as shown in the table above.
 
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerAssembly2.jpg" width="600">
+
 Twisted 30awg silicone wire harnesses will have very little effect on movement, even with very weak servos. Avoid using a lot of heatshrink on the harness, or anything else that might make it stiffer. Make the harness long enough so the battery (and OLED+button) can can be comfortably positioned away from the surface without any wire tension during measurments. 6" is usually enough for planes; heli pilots may want a longer harness. Avoid going much longer than ~12" if possible when using an OLED screen; very long wires may result in i2c errors.
 
 It's a good idea to add some protection so the wires don't get damaged over time. I cut pieces of thick/tacky rubber tape (3m 2242) to make a tunnel for the battery wires. This way the board lies in plane with the surface without pinching or rocking on wires. The included clip files are best printed in TPU. They are very gentle on planes, and hold the board securely when 2242 tape is used on the board. Of course you can just use clothespins or whatever else if a 3d printer is not available.
