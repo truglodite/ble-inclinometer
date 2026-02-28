@@ -68,6 +68,8 @@ It's a good idea to add some protection so the wires don't get damaged over time
 
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerAssembly1.jpg" width="600">
 
+If you are using the 3d printable case, TPU is best for durability and to allow easy operation of the 'membrane' tare button. Supports are required for the membrane button and lipo holder areas (not in the text or screw holes). Run the wires through the hole, which has strain relief built in. The button and OLED set in the bottom of the case, and the top is secured with M2 bolts and nuts (the bolt length can vary from 6mm to 17mm; I used M2x7).
+
 ## General Use:
 Clip the XIAO on the control surface to be measured and procede with measurements as needed. It is best to clip the sensor to your surface such that the roll axis (usb port) is aligned with the axis of rotation (aka "hinge line" or "feathering shaft"). When aligned perfectly, the pitch angle will not change with deflection, and the roll display will perfectly represent travel. Some small changes in pitch angle are fine. However if your measurement requires very high accuracy and you see larger changes in pitch while moving the surface (> +/-5degrees), you may want to try improving the alignment.
 
