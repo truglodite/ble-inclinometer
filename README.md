@@ -1,6 +1,6 @@
 # ble-inclinometer
 
-### For measuring pitch and throw angles on RC aircraft and helis, using the Xiao NRF52840 Sense.
+### Measure pitch and throw angles on RC aircraft and helis, using the Xiao NRF52840 Sense.
 
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
 
