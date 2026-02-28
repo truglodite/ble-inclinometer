@@ -3,7 +3,6 @@
 ### For measuring pitch and throw angles on RC aircraft and helis, using the Xiao NRF52840 Sense.
 
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2629.PNG" height="600">
 
 ## Features:
 * Extremely Small and lightweight sensor form factor vs commercial inclinometers; won't spoil measurements on delicate/flexible surfaces with weak servos
@@ -67,6 +66,8 @@ Take care the airframe does not move much while measuring (for example keep plan
 
 Use the Tare function (via button or BLE) to zero the angles at any position (ie sticks centered after subtrim). Use measurements to setup surface endpoints, control rates, etc.
 #### Bluetooth Details:
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2629.PNG" height="600">
+
 UUID | Name | Units
 --- | -------- | ---
 1001 | Roll axis | degrees
