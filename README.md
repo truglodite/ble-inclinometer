@@ -2,8 +2,6 @@
 
 ### Measure pitch and throw angles on RC aircraft and helis, using the Xiao NRF52840 Sense.
 
-<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
-
 ## Features:
 * Extremely Small and lightweight sensor form factor vs commercial inclinometers; won't spoil measurements on delicate/flexible surfaces with weak servos
 * Very simple stand alone 1s battery only option works with Bluetooth LE using the "NRF Connect Mobile" app (iOS and Andriod)
@@ -14,6 +12,12 @@
 * Simplified PlatformIO flashing with open source libraries included
 * LED status indicators (Blue = BLE connected, Green flash = Data updated, Red flash = Taring)
 * 3D printable surface clip STL files included
+
+*Minimal assymbly for BLE use, with just a 1s lipo connected to the XIAO*
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
+
+*Full featured assymbly including OLED and tare button, using the included 3d printable files.*
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerCase.jpg" width="600">
 
 ## Hardware:
 1@ Seeed Studio Xiao NRF52840 Sense board:
@@ -56,9 +60,16 @@ button 1b   | gnd
 
 The entire circuit uses very little current. So 30awg or even smaller wire should be adequate. Wire a 1s lithium battery to the BAT+/- pads on the back of the board. The battery can be anything from a rechargeable LR2032 coin cell up to a giant 5000mAh lipo. I recommend using a battery connector, as the battery will drain over time if left connected while not being used. I soldered some 30awg wire to a BT2.0 connector, and use one of my old/tired 1s300 tinywhoop lipos for power. If you are using an OLED and/or a tare button, wire them as shown in the table above.
 
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerAssembly2.jpg" width="600">
+
 Twisted 30awg silicone wire harnesses will have very little effect on movement, even with very weak servos. Avoid using a lot of heatshrink on the harness, or anything else that might make it stiffer. Make the harness long enough so the battery (and OLED+button) can can be comfortably positioned away from the surface without any wire tension during measurments. 6" is usually enough for planes; heli pilots may want a longer harness. Avoid going much longer than ~12" if possible when using an OLED screen; very long wires may result in i2c errors.
 
 It's a good idea to add some protection so the wires don't get damaged over time. I cut pieces of thick/tacky rubber tape (3m 2242) to make a tunnel for the battery wires. This way the board lies in plane with the surface without pinching or rocking on wires. The included clip files are best printed in TPU. They are very gentle on planes, and hold the board securely when 2242 tape is used on the board. Of course you can just use clothespins or whatever else if a 3d printer is not available.
+
+<img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerAssembly1.jpg" width="600">
+
+If you are using the 3d printable case, TPU is best for durability and to allow easy operation of the 'membrane' tare button. Supports are required for the membrane button and lipo holder areas (not in the text or screw holes). Run the wires through the hole, which has strain relief built in. The button and OLED set in the bottom of the case, and the top is secured with M2 bolts and nuts (the bolt length can vary from 6mm to 17mm; I used M2x7).
+
 ## General Use:
 Clip the XIAO on the control surface to be measured and procede with measurements as needed. It is best to clip the sensor to your surface such that the roll axis (usb port) is aligned with the axis of rotation (aka "hinge line" or "feathering shaft"). When aligned perfectly, the pitch angle will not change with deflection, and the roll display will perfectly represent travel. Some small changes in pitch angle are fine. However if your measurement requires very high accuracy and you see larger changes in pitch while moving the surface (> +/-5degrees), you may want to try improving the alignment.
 
