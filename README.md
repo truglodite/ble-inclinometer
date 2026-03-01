@@ -75,7 +75,9 @@ UUID | Name | Units
 1003 | Tare both axis | send "TRUE"
 1004 | Battery Voltage | V
 
-Install the "NRF Connect" app on your phone. When you power up your inclinometer, it will show up in the app as *"Angle Monitor"*. Connect to it, and the characteristics (sensors and controls) will appear in a list. Click the *"down-bar"* arrows on the sensor UUID's (1001, 1002, & 1003) to get continuously updated values. Click the *"quotes"* and select *"UTF-8"*. Now the angles and voltage should display correctly. Tare by clicking the "Up Arrow" on the tare UUID (1003), and send a Boolean "True" (or an UnsignedInt "1"). 
+Install the "NRF Connect" app on your phone. When you power up your inclinometer, it will show up in the app as *"Angle Monitor"*. Connect to it, and the characteristics (sensors and controls) will appear in a list. Click the *"down-bar"* arrows on the sensor UUID's (1001, 1002, & 1003) to get continuously updated values. Click the *"quotes"* and select *"UTF-8"*. Now the angles and voltage should display correctly. Tare by clicking the "Up Arrow" on the tare UUID (1003), and send a Boolean "True" (or an UnsignedInt "1").
+
+If you are use an OLED, bluetooth connection info will show on the screen. If you have not enabled "formatOledBig, the bluetooth info line will either show "BT: disconnected" if no phone is connected, or "BT: (MAC address of connected phone)". If you use "formatOledBig", bluetooth info and battery voltage will alternate on the bottom line every ~2.5seconds.
 
 Proper descriptor names are included with all BLE characteristics. Unfortunately NRF Connect (and many similar apps) do not read or make use of them. If there's an app that does, actual sensor names are available in the transmissions.
 ## Notes:
