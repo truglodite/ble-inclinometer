@@ -3,6 +3,7 @@
 #include "LSM6DS3.h"
 #include "Wire.h"
 #include <Adafruit_SSD1306.h>
+#include <avr/dtostrf.h>
 
 // ================= USER CONFIG =================
 #define tareLEDtime 2000
@@ -16,7 +17,6 @@
 #define ledColorTare LED_RED
 
 #define chargeCurrent LOW
-
 #define oledFormatBig
 
 // Battery constants
@@ -49,7 +49,7 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // ================= SPLASH =================
 static const unsigned char splashScreen[] PROGMEM = {
-  // (keep your original bitmap here unchanged)
+  // 👉 KEEP your original bitmap here
 };
 
 // ================= KALMAN FILTER =================
@@ -100,16 +100,17 @@ float rollRaw = 0, pitchRaw = 0;
 float tareRoll = 0, tarePitch = 0;
 float battery = 0;
 
+char rollBuffer[10];
+char pitchBuffer[10];
+
 unsigned long currentMillis = 0;
 unsigned long previousDisplay = 0;
 unsigned long previousAlternate = 0;
-unsigned long previousDataFlash = 0;
 unsigned long previousTare = 0;
 unsigned long lastTime = 0;
 
-bool dataLedFlag = false;
-bool tareLedFlag = false;
 bool tareFlag = false;
+bool tareLedFlag = false;
 bool centralFlag = false;
 
 uint8_t displayIndex = 0;
@@ -141,6 +142,10 @@ void updateData() {
   roll = rollRaw - tareRoll;
   pitch = pitchRaw - tarePitch;
 
+  // RIGHT-JUSTIFIED FORMAT
+  dtostrf(roll, 6, 1, rollBuffer);
+  dtostrf(pitch, 6, 1, pitchBuffer);
+
   float raw = analogRead(batteryAnalogPin);
   battery = (raw * ADC_REF / ADC_RES) * ((R1 + R2) / R2);
 }
@@ -159,20 +164,19 @@ void sendOLED() {
   display.setTextColor(SSD1306_WHITE);
 
 #ifdef oledFormatBig
+
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print("R:");
 
   display.setTextSize(3);
-  if (roll > -100) display.print(" ");
-  display.println(roll, 1);
+  display.println(rollBuffer);
 
   display.setTextSize(1);
   display.print("P:");
 
   display.setTextSize(3);
-  if (pitch > -100) display.print(" ");
-  display.println(pitch, 1);
+  display.println(pitchBuffer);
 
   if (currentMillis - previousAlternate > displayAlternatePeriod) {
     previousAlternate = currentMillis;
@@ -193,27 +197,16 @@ void sendOLED() {
   }
 
 #else
+
   display.setTextSize(2);
   display.setCursor(0, 0);
   display.print("R:");
-  display.print(roll, 1);
-  display.print((char)247);
+  display.println(rollBuffer);
 
   display.setCursor(0, 20);
   display.print("P:");
-  display.print(pitch, 1);
-  display.print((char)247);
+  display.println(pitchBuffer);
 
-  display.setTextSize(1);
-  display.setCursor(0, 45);
-  display.print("BT: ");
-  if (centralFlag) display.println(centralAddress);
-  else display.println("disconnected");
-
-  display.setCursor(0, 55);
-  display.print("Bat:");
-  display.print(battery, 2);
-  display.print("V");
 #endif
 
   display.display();
@@ -239,7 +232,6 @@ void setup() {
   Wire.begin();
   display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
-  // Splash
   display.clearDisplay();
   display.drawBitmap(0, 0, splashScreen, 128, 64, SSD1306_WHITE);
   display.display();
@@ -248,7 +240,6 @@ void setup() {
   BLE.begin();
   myIMU.begin();
 
-  // IMPORTANT: enable gyro
   myIMU.settings.gyroEnabled = 1;
   myIMU.settings.accelEnabled = 1;
   myIMU.settings.accelRange = 2;
@@ -301,7 +292,6 @@ void loop() {
   if (central.connected()) sendBLE();
   sendOLED();
 
-  // tare button
   if (!digitalRead(tareButtonPin)) {
     delay(20);
     if (!digitalRead(tareButtonPin)) {
