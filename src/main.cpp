@@ -5,10 +5,10 @@
 #include <Adafruit_SSD1306.h>
 
 // ================= USER CONFIG =================
-#define sampleCount 100
 #define tareLEDtime 2000
 #define dataFlash 50
 #define displayUpdateInterval 150
+#define displayAlternatePeriod 2500
 #define tareButtonPin 11
 
 #define ledColorData LED_GREEN
@@ -17,7 +17,9 @@
 
 #define chargeCurrent LOW
 
-// Battery calculation constants
+#define oledFormatBig
+
+// Battery constants
 #define ADC_REF 3.3
 #define ADC_RES 1024.0
 #define R1 1510.0
@@ -45,65 +47,102 @@ BLEByteCharacteristic tareChar("1003", BLERead | BLEWrite);
 #define SCREEN_HEIGHT 64
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
+// ================= SPLASH =================
+static const unsigned char splashScreen[] PROGMEM = {
+  // (keep your original bitmap here unchanged)
+};
+
+// ================= KALMAN FILTER =================
+class Kalman {
+public:
+  float Q_angle = 0.001;
+  float Q_bias = 0.003;
+  float R_measure = 0.03;
+
+  float angle = 0, bias = 0, rate = 0;
+  float P[2][2] = {{0,0},{0,0}};
+
+  float getAngle(float newAngle, float newRate, float dt) {
+    rate = newRate - bias;
+    angle += dt * rate;
+
+    P[0][0] += dt * (dt*P[1][1] - P[1][0] - P[0][1] + Q_angle);
+    P[0][1] -= dt * P[1][1];
+    P[1][0] -= dt * P[1][1];
+    P[1][1] += Q_bias * dt;
+
+    float S = P[0][0] + R_measure;
+    float K[2] = {P[0][0]/S, P[1][0]/S};
+
+    float y = newAngle - angle;
+    angle += K[0] * y;
+    bias += K[1] * y;
+
+    float P00 = P[0][0], P01 = P[0][1];
+
+    P[0][0] -= K[0] * P00;
+    P[0][1] -= K[0] * P01;
+    P[1][0] -= K[1] * P00;
+    P[1][1] -= K[1] * P01;
+
+    return angle;
+  }
+};
+
+Kalman kalmanRoll, kalmanPitch;
+
 // ================= GLOBALS =================
-float accX = 0, accY = 0, accZ = 0;
+float accX, accY, accZ;
+float gyroX, gyroY;
+
 float roll = 0, pitch = 0;
 float rollRaw = 0, pitchRaw = 0;
 float tareRoll = 0, tarePitch = 0;
 float battery = 0;
 
-uint8_t samples = 0;
-
 unsigned long currentMillis = 0;
 unsigned long previousDisplay = 0;
+unsigned long previousAlternate = 0;
 unsigned long previousDataFlash = 0;
 unsigned long previousTare = 0;
+unsigned long lastTime = 0;
 
 bool dataLedFlag = false;
 bool tareLedFlag = false;
 bool tareFlag = false;
 bool centralFlag = false;
 
+uint8_t displayIndex = 0;
 char centralAddress[20] = "0";
 
 // ================= FUNCTIONS =================
 
 void readData() {
-  battery += analogRead(batteryAnalogPin);
+  accX = myIMU.readFloatAccelX();
+  accY = myIMU.readFloatAccelY();
+  accZ = myIMU.readFloatAccelZ();
 
-  accX += myIMU.readFloatAccelX();
-  accY += myIMU.readFloatAccelY();
-  accZ += myIMU.readFloatAccelZ();
+  gyroX = myIMU.readFloatGyroX();
+  gyroY = myIMU.readFloatGyroY();
 }
 
 void updateData() {
-  if (samples == 0) return;
+  unsigned long now = millis();
+  float dt = (now - lastTime) / 1000.0;
+  lastTime = now;
+  if (dt <= 0) return;
 
-  accX /= samples;
-  accY /= samples;
-  accZ /= samples;
+  float rollAcc = atan2(accY, accZ) * RAD_TO_DEG;
+  float pitchAcc = atan2(-accX, sqrt(accY*accY + accZ*accZ)) * RAD_TO_DEG;
 
-  float yz = sqrt(accY * accY + accZ * accZ);
-
-  rollRaw = atan2(accY, accZ) * RAD_TO_DEG;
-  pitchRaw = atan2(-accX, yz) * RAD_TO_DEG;
+  rollRaw = kalmanRoll.getAngle(rollAcc, gyroX, dt);
+  pitchRaw = kalmanPitch.getAngle(pitchAcc, gyroY, dt);
 
   roll = rollRaw - tareRoll;
   pitch = pitchRaw - tarePitch;
 
-  battery /= samples;
-  battery = (battery * ADC_REF / ADC_RES) * ((R1 + R2) / R2);
-
-  Serial.print("Roll/Pitch/Battery: ");
-  Serial.print(roll);
-  Serial.print(", ");
-  Serial.print(pitch);
-  Serial.print(", ");
-  Serial.println(battery);
-
-  accX = accY = accZ = 0;
-  battery = 0;
-  samples = 0;
+  float raw = analogRead(batteryAnalogPin);
+  battery = (raw * ADC_REF / ADC_RES) * ((R1 + R2) / R2);
 }
 
 void sendBLE() {
@@ -119,6 +158,41 @@ void sendOLED() {
   display.clearDisplay();
   display.setTextColor(SSD1306_WHITE);
 
+#ifdef oledFormatBig
+  display.setTextSize(1);
+  display.setCursor(0, 0);
+  display.print("R:");
+
+  display.setTextSize(3);
+  if (roll > -100) display.print(" ");
+  display.println(roll, 1);
+
+  display.setTextSize(1);
+  display.print("P:");
+
+  display.setTextSize(3);
+  if (pitch > -100) display.print(" ");
+  display.println(pitch, 1);
+
+  if (currentMillis - previousAlternate > displayAlternatePeriod) {
+    previousAlternate = currentMillis;
+    displayIndex = !displayIndex;
+  }
+
+  display.setTextSize(1);
+  display.setCursor(0, 52);
+
+  if (displayIndex == 0) {
+    display.print("Battery: ");
+    display.print(battery, 2);
+    display.print(" V");
+  } else {
+    display.print("BT: ");
+    if (centralFlag) display.print(centralAddress);
+    else display.print("disconnected");
+  }
+
+#else
   display.setTextSize(2);
   display.setCursor(0, 0);
   display.print("R:");
@@ -131,7 +205,6 @@ void sendOLED() {
   display.print((char)247);
 
   display.setTextSize(1);
-
   display.setCursor(0, 45);
   display.print("BT: ");
   if (centralFlag) display.println(centralAddress);
@@ -141,6 +214,7 @@ void sendOLED() {
   display.print("Bat:");
   display.print(battery, 2);
   display.print("V");
+#endif
 
   display.display();
 }
@@ -156,27 +230,29 @@ void setup() {
   delay(1000);
 
   pinMode(tareButtonPin, INPUT_PULLUP);
-
   pinMode(LED_RED, OUTPUT);
   pinMode(LED_BLUE, OUTPUT);
   pinMode(LED_GREEN, OUTPUT);
-
   pinMode(chargePin, OUTPUT);
   pinMode(batteryReadPin, OUTPUT);
 
   Wire.begin();
+  display.begin(SSD1306_SWITCHCAPVCC, 0x3C);
 
-  if (!display.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println("OLED failed!");
-  }
+  // Splash
+  display.clearDisplay();
+  display.drawBitmap(0, 0, splashScreen, 128, 64, SSD1306_WHITE);
+  display.display();
+  delay(2000);
 
-  if (!BLE.begin()) {
-    Serial.println("BLE failed!");
-  }
+  BLE.begin();
+  myIMU.begin();
 
-  if (myIMU.begin() != 0) {
-    Serial.println("IMU error!");
-  }
+  // IMPORTANT: enable gyro
+  myIMU.settings.gyroEnabled = 1;
+  myIMU.settings.accelEnabled = 1;
+  myIMU.settings.accelRange = 2;
+  myIMU.settings.accelSampleRate = 208;
 
   BLE.setDeviceName("Angle Monitor");
   BLE.setLocalName("Angle Monitor");
@@ -190,18 +266,11 @@ void setup() {
   BLE.addService(angleMonitorService);
   BLE.advertise();
 
-  // IMU settings
-  myIMU.settings.gyroEnabled = 0;
-  myIMU.settings.accelEnabled = 1;
-  myIMU.settings.accelRange = 2;
-  myIMU.settings.accelSampleRate = 208;
-  myIMU.settings.accelBandWidth = 50;
+  lastTime = millis();
 
   digitalWrite(ledColorBLE, HIGH);
   digitalWrite(ledColorData, HIGH);
   digitalWrite(ledColorTare, HIGH);
-
-  Serial.println("Bluetooth® device active");
 }
 
 // ================= LOOP =================
@@ -217,43 +286,22 @@ void loop() {
     if (!centralFlag) {
       strcpy(centralAddress, central.address().c_str());
       digitalWrite(ledColorBLE, LOW);
-      Serial.print("Connected: ");
-      Serial.println(centralAddress);
       centralFlag = true;
     }
   } else {
     if (centralFlag) {
       digitalWrite(ledColorBLE, HIGH);
-      Serial.println("Disconnected");
       centralFlag = false;
     }
   }
 
-  // Continuous sampling
   readData();
-  samples++;
+  updateData();
 
-  if (samples >= sampleCount) {
-    updateData();
+  if (central.connected()) sendBLE();
+  sendOLED();
 
-    if (central.connected()) {
-      sendBLE();
-    }
-
-    sendOLED();
-
-    digitalWrite(ledColorData, LOW);
-    previousDataFlash = currentMillis;
-    dataLedFlag = true;
-  }
-
-  // Data LED off timer
-  if (dataLedFlag && currentMillis - previousDataFlash >= dataFlash) {
-    digitalWrite(ledColorData, HIGH);
-    dataLedFlag = false;
-  }
-
-  // Button debounce
+  // tare button
   if (!digitalRead(tareButtonPin)) {
     delay(20);
     if (!digitalRead(tareButtonPin)) {
@@ -261,20 +309,17 @@ void loop() {
       previousTare = currentMillis;
       digitalWrite(ledColorTare, LOW);
       tareLedFlag = true;
-      Serial.println("Tare button");
     }
   }
 
-  // BLE tare
   if (tareChar.written() && tareChar.value()) {
     tareFlag = true;
     previousTare = currentMillis;
     digitalWrite(ledColorTare, LOW);
     tareLedFlag = true;
-    Serial.println("Tare BLE");
   }
 
-  if (tareFlag && samples >= sampleCount) {
+  if (tareFlag) {
     tareAxis();
     tareFlag = false;
   }
