@@ -17,7 +17,9 @@
 #define ledColorTare LED_RED
 
 #define chargeCurrent LOW
-#define oledFormatBig
+
+// 👉 Uncomment to enable big display mode
+// #define oledFormatBig
 
 // Battery constants
 #define ADC_REF 3.3
@@ -49,10 +51,10 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 // ================= SPLASH =================
 static const unsigned char splashScreen[] PROGMEM = {
-  // 👉 KEEP your original bitmap here
+  // keep your original bitmap here
 };
 
-// ================= KALMAN FILTER =================
+// ================= KALMAN =================
 class Kalman {
 public:
   float Q_angle = 0.001;
@@ -142,7 +144,6 @@ void updateData() {
   roll = rollRaw - tareRoll;
   pitch = pitchRaw - tarePitch;
 
-  // RIGHT-JUSTIFIED FORMAT
   dtostrf(roll, 6, 1, rollBuffer);
   dtostrf(pitch, 6, 1, pitchBuffer);
 
@@ -164,17 +165,14 @@ void sendOLED() {
   display.setTextColor(SSD1306_WHITE);
 
 #ifdef oledFormatBig
-
   display.setTextSize(1);
   display.setCursor(0, 0);
   display.print("R:");
-
   display.setTextSize(3);
   display.println(rollBuffer);
 
   display.setTextSize(1);
   display.print("P:");
-
   display.setTextSize(3);
   display.println(pitchBuffer);
 
@@ -197,7 +195,6 @@ void sendOLED() {
   }
 
 #else
-
   display.setTextSize(2);
   display.setCursor(0, 0);
   display.print("R:");
@@ -207,6 +204,16 @@ void sendOLED() {
   display.print("P:");
   display.println(pitchBuffer);
 
+  display.setTextSize(1);
+  display.setCursor(0, 45);
+  display.print("BT: ");
+  if (centralFlag) display.println(centralAddress);
+  else display.println("disconnected");
+
+  display.setCursor(0, 55);
+  display.print("Bat:");
+  display.print(battery, 2);
+  display.print("V");
 #endif
 
   display.display();
