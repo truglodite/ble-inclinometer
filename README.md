@@ -11,7 +11,7 @@
 * Displays battery volts (the Xiao has a built in USB powered 1s lithium battery manager, with 50mA and 100mA charge options)
 * Simplified PlatformIO flashing with open source libraries included
 * LED status indicators (Blue = BLE connected, Green flash = Data updated, Red flash = Taring)
-* 3D printable surface clip STL files included
+* 3D printable surface clip STL and OLED+button+battery enclosure files included
 
 *Minimal assymbly for BLE use, with just a 1s lipo connected to the XIAO*
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">

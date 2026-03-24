@@ -1,5 +1,3 @@
-#include <Arduino.h>
-
 // ble-inclinometer
 // written by: Truglodite 2/26/26
 // The perfect tool for setting rc aircraft control throw, and other angle measurement needs.
@@ -29,8 +27,9 @@
 //  button 1a   | 10
 //  button 1b   | gnd
 
-// Arduino requires the seed gyro lib (not the 'duino download): https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3
+// Arduino requires the seeed gyro lib (not the 'duino download): https://github.com/Seeed-Studio/Seeed_Arduino_LSM6DS3
 
+#include <Arduino.h>
 #include "ArduinoBLE.h"
 #include "LSM6DS3.h"
 #include "Wire.h"
