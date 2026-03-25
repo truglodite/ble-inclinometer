@@ -16,7 +16,7 @@
 *Minimal assymbly for BLE use, with just a 1s lipo connected to the XIAO*
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/IMG_2628_1.jpg" width="600">
 
-*Full featured assymbly including OLED and tare button, using the included 3d printable files.*
+*Full featured assembly including OLED and tare button, using the included 3d printable files.*
 <img src="https://github.com/truglodite/ble-inclinometer/blob/main/images/bleInclinometerCase.jpg" width="600">
 
 ## Hardware:
